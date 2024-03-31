@@ -2,6 +2,7 @@
   <a href="https://github.com/Pranshu321/Bookger">
     <img src="https://github.com/Pranshu321/Bookger/assets/86917304/dcfe0a74-5061-401e-ab35-a56dbb071cf4" alt="Logo" width="80" height="80">
   </a>
+  
 
 <h3 align="center">Bookger</h3>
 
@@ -45,6 +46,10 @@
 ## About The Project
 
 ![image](https://github.com/Pranshu321/Bookger/assets/86917304/54f0d6ce-b464-47a4-ae5f-21f5bb76dc0c)
+
+
+![image](https://github.com/Pranshu321/Bookger/assets/86917304/6093965e-8276-47b3-bc76-68bbff0bd982)
+
 
 The Chrome Bookmark Manager project aims to provide users with a seamless experience for organizing and managing their bookmarks across both the Chrome browser extension and a web application. By combining the convenience of browser integration with the flexibility of a web-based interface, users can effortlessly organize, access, and sync their bookmarks across multiple devices.
 
