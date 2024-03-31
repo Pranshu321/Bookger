@@ -210,14 +210,14 @@ function App() {
         // Create a Firestore document for the bookmark
         // const bookmarkDocRef = doc(db, "bookmarks", bookmark.id);
         console.log("bookmarkData", bookmarkData);
-        // batch.push(setDoc(doc(db, "bookmarks", bookmark.id), bookmarkData));
-        batch.push(
-          db
-            .collection("Users")
-            .doc("pranshu")
-            .collection("bookmarks")
-            .add(bookmarkData)
-        );
+        batch.push(setDoc(doc(db, "bookmarks", bookmark.id), bookmarkData));
+        // batch.push(
+        //   db
+        //     .collection("Users")
+        //     .doc("pranshu")
+        //     .collection("bookmarks")
+        //     .add(bookmarkData)
+        // );
 
         // If the bookmark has children (i.e., it's a folder), recursively process its children
         if (bookmark.children && bookmark.children.length > 0) {

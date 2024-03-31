@@ -1,9 +1,57 @@
-import React, { useEffect } from "react";
-import { auth } from "../firebase";
+import React, { useEffect, useState } from "react";
+import { auth, db } from "../firebase";
 import { useNavigate } from "react-router-dom";
+import { collection, getDocs } from "firebase/firestore";
 
 const Bookmarks = () => {
   const navigate = useNavigate();
+  const [bookmarks, setBookmarks] = useState([]);
+  const [docIds, setDocIds] = useState([]); // [docId1, docId2, docId3, ...
+  const [folders, setFolders] = useState([]);
+  const [groupedBookmarks, setGroupedBookmarks] = useState(new Map());
+  async function getAllDocuments() {
+    const querySnapshot = await getDocs(collection(db, "bookmarks"));
+    const data = querySnapshot.docs.map((doc) => {
+      return {
+        data: doc.data(),
+        id: doc.id,
+      };
+    });
+    console.log(data);
+    setBookmarks(data);
+    groupBookmarksByFolder(data);
+  }
+
+  function groupBookmarksByFolder(bookmarks) {
+    // Initialize an empty map to store grouped bookmarks
+    const groupedBookmarks = new Map();
+    const folders = [];
+
+    // Iterate over each bookmark
+    bookmarks.forEach((bookmark) => {
+      const folderCategory = bookmark.data.folderCategory;
+
+      // Check if the bookmark is a folder or a bookmark with a URL
+      if (bookmark.data.URL !== "") {
+        // If the bookmark has a URL, it's a bookmark, so add it to the corresponding folder/category
+        if (groupedBookmarks.has(folderCategory)) {
+          // If the folder/category exists, append the bookmark to its array
+          groupedBookmarks.get(folderCategory).push(bookmark.data);
+        } else {
+          // If the folder/category doesn't exist, create a new array with the bookmark
+          groupedBookmarks.set(folderCategory, [bookmark.data]);
+        }
+      } else {
+        // If the bookmark doesn't have a URL, it's a folder, so add it to the folders array
+        folders.push({ name: bookmark.data.title, id: bookmark.id });
+      }
+    });
+    setGroupedBookmarks(groupedBookmarks);
+    setFolders(folders);
+    console.log(groupedBookmarks, folders);
+    return { groupedBookmarks, folders };
+  }
+
   useEffect(() => {
     const unsubscribe = auth.onAuthStateChanged((user) => {
       if (user) {
@@ -13,7 +61,7 @@ const Bookmarks = () => {
         navigate("/");
       }
     });
-
+    getAllDocuments();
     return unsubscribe;
   }, []);
   return (
@@ -66,25 +114,49 @@ const Bookmarks = () => {
         </div>
       </div>
       <div className="flex justify-center mt-10">
-        <div className="stats shadow items-center justify-center">
+        <div className="w-full stats shadow items-stretch justify-evenly">
           <div className="stat place-items-center">
             <div className="stat-title">Total Folders</div>
-            <div className="stat-value">31K</div>
-            <div className="stat-desc">From January 1st to February 1st</div>
+            <div className="stat-value">
+              {folders?.length !== 0 ? folders?.length : 0}
+            </div>
+            <div className="stat-desc">Total folders in bookmarks</div>
           </div>
 
           <div className="stat place-items-center">
-            <div className="stat-title">Users</div>
-            <div className="stat-value text-secondary">4,200</div>
-            <div className="stat-desc text-secondary">↗︎ 40 (2%)</div>
-          </div>
-
-          <div className="stat place-items-center">
-            <div className="stat-title">New Registers</div>
-            <div className="stat-value">1,200</div>
-            <div className="stat-desc">↘︎ 90 (14%)</div>
+            <div className="stat-title">Total Links</div>
+            <div className="stat-value text-secondary">{bookmarks?.length}</div>
+            <div className="stat-desc text-secondary">
+              Total bookmarks present
+            </div>
           </div>
         </div>
+      </div>
+      <div className="mt-10">
+        {folders.map((item, idx) => (
+          <div className="my-10 mt-20" key={idx + 1}>
+            <h1 className="font-bold text-xl ml-5">{item.name}</h1>
+            <div className="flex gap-5 mx-5 flex-wrap">
+              {groupedBookmarks.get(item.id)?.map((bookmark) => (
+                <div
+                  key={bookmark.title}
+                  className="card w-96 bg-base-100 shadow-xl"
+                >
+                  <div className="card-body">
+                    <h2 className="card-title text-base">
+                      {bookmark.title.slice(0, 40)}
+                    </h2>
+                    <div className="card-actions justify-end">
+                      <a href={bookmark.URL} className="btn btn-primary">
+                        Visit
+                      </a>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        ))}
       </div>
     </div>
   );
