@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useRef } from "react";
 import { AiFillCaretDown, AiFillCaretRight } from "react-icons/ai";
 import { BiCheck } from "react-icons/bi";
+import { CiLogout } from "react-icons/ci";
 import { atom, useAtom } from "jotai";
 import {
   bookmarksAtom,
@@ -10,10 +11,13 @@ import {
   pointsAtom,
   renameAtom,
   isFolderAtom,
+  logged,
 } from "../../state/atoms";
 import { useClickOutside } from "../../hooks/useClickOutside";
 
 import s from "./Sidebar.module.css";
+import { auth } from "../../firebase/firebase";
+import { onAuthStateChanged } from "firebase/auth";
 
 function Folder({ bookmark, onRename }) {
   const showAtom = useMemo(
@@ -25,6 +29,7 @@ function Folder({ bookmark, onRename }) {
   const [, setFolderId] = useAtom(folderIdAtom);
   const [updateId] = useAtom(updateIdAtom);
   const [, setClicked] = useAtom(clickedAtom);
+  const [, setLoggeds] = useAtom(logged);
   const [, setUpdateId] = useAtom(updateIdAtom);
   const [, setPoints] = useAtom(pointsAtom);
   const [rename, setRename] = useAtom(renameAtom);
@@ -67,6 +72,11 @@ function Folder({ bookmark, onRename }) {
     console.log(newName);
     onRename(newName);
     setRename(false);
+  }
+
+  function loggedChnage() {
+    setLoggeds(false);
+    auth.signOut();
   }
 
   const isRename = rename && updateId === id;
@@ -135,6 +145,16 @@ function Sidebar({ onRename }) {
             return;
           }
         })}
+        <div>
+          <CiLogout
+            color="white"
+            size={30}
+            style={{
+              margin: "10px",
+              cursor: "pointer",
+            }}
+          />
+        </div>
       </div>
     </div>
   );

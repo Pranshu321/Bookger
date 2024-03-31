@@ -11,6 +11,7 @@ export const pointsAtom = atom({ x: 0, y: 0 });
 export const modalAtom = atom(null);
 export const deleteConfirmAtom = atom(false);
 export const renameAtom = atom(false);
+export const logged = atom(false);
 export const expandAtom = atom(false);
 export const bmArrayAtom = atom([]);
 export const dragAtom = atom(false);

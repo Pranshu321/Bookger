@@ -19,6 +19,7 @@ import { IoReorderThree } from "react-icons/io5";
 import { MdDragIndicator, MdMoreVert } from "react-icons/md";
 import { FaFolderOpen, FaFolder, FaFolderPlus } from "react-icons/fa";
 import { useAtom } from "jotai";
+import { createUserWithEmailAndPassword } from "firebase/auth";
 import {
   folderIdAtom,
   subTreeAtom,
@@ -33,13 +34,16 @@ import {
 } from "../../state/atoms";
 
 import Item from "../Item";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
+import { auth } from "../../firebase/firebase";
 
 function Window({ bookmarksCb }) {
   const [, setFolderId] = useAtom(folderIdAtom);
   const [subTree] = useAtom(subTreeAtom);
   const [parents] = useAtom(parentsAtom);
   const [, setClicked] = useAtom(clickedAtom);
+  const [email, setemail] = useState("");
+  const [password, setpassword] = useState("");
   const [, setIsFolder] = useAtom(isFolderAtom);
   const [, setUpdateId] = useAtom(updateIdAtom);
   const [, setPoints] = useAtom(pointsAtom);

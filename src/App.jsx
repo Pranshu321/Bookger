@@ -1,9 +1,13 @@
-import { useEffect, useCallback, useRef } from "react";
+import { useEffect, useCallback, useRef, useState } from "react";
 import s from "./App.module.css";
 import { useAtom } from "jotai";
 import { useClickOutside } from "./hooks/useClickOutside";
 import { auth, db } from "./firebase/firebase";
-import { signInWithPopup, GoogleAuthProvider } from "firebase/auth";
+import {
+  signInWithPopup,
+  GoogleAuthProvider,
+  onAuthStateChanged,
+} from "firebase/auth";
 import { doc, setDoc, serverTimestamp, collection } from "firebase/firestore";
 
 import {
@@ -18,6 +22,7 @@ import {
   newFolderAtom,
   isPreviewAtom,
   NewFolderNameAtom,
+  logged,
 } from "./state/atoms";
 import Window from "./components/Window/Window";
 import Sidebar from "./components/Sidebar/Sidebar";
@@ -25,11 +30,14 @@ import Context from "./components/Context";
 import CreateFolder from "./components/CreateFolder";
 
 import DeleteConfirm from "./components/DeleteConfirm";
+import SignIn from "./components/SignIn";
+import SignUp from "./components/SignUp";
 
 function App() {
   const [deleteConfirm, setDeleteConfirm] = useAtom(deleteConfirmAtom);
   const [bookmarks, setBookmarks] = useAtom(bookmarksAtom);
   const [folderId] = useAtom(folderIdAtom);
+  const [, setlogged] = useAtom(logged);
   const [newFolderNameAtom] = useAtom(NewFolderNameAtom);
   const [, setSubTree] = useAtom(subTreeAtom);
   const [, setParents] = useAtom(parentsAtom);
@@ -118,6 +126,21 @@ function App() {
     }
     console.log("parentsArr", parentsArr);
   }
+
+  useEffect(() => {
+    onAuthStateChanged(auth, (user) => {
+      if (user) {
+        // User is signed in, see docs for a list of available properties
+        // https://firebase.google.com/docs/reference/js/auth.user
+        setlogged(true);
+        const uid = user.uid;
+        // ...
+      } else {
+        // User is signed out
+        // ...
+      }
+    });
+  }, []);
 
   function onDelete() {
     console.log(updateId);
@@ -209,10 +232,15 @@ function App() {
 
   return (
     <div className={s.main}>
-      <div className={s.container}>
-        <Sidebar onRename={onRename} />
-        <Window bookmarksCb={bookmarksCb} onRename={onRename} />
-      </div>
+      {logged ? (
+        <div className={s.container}>
+          <Sidebar onRename={onRename} />
+          <Window bookmarksCb={bookmarksCb} onRename={onRename} />
+        </div>
+      ) : (
+        <SignIn />
+      )}
+
       {clicked && <Context onEdit={onEdit} ref={ctxRef} />}
       {deleteConfirm && (
         <DeleteConfirm onDelete={onDelete} ref={deleteConfirmRef} />
